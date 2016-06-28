@@ -1,14 +1,18 @@
 package Datatypes;
 
+import System.Output;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+
 public class Num {
 
-    double data;
+    BigDecimal data;
     
     //Initializing from primative types
     
     public Num( Num input ){
         
-        data = input.toDouble();
+        data = new BigDecimal( input.toDouble() );
         
     }
     
@@ -16,23 +20,28 @@ public class Num {
         
         if ( input instanceof Long ){
             
-            data = ( long ) input;
+            data = new BigDecimal( ( long ) input );
             
         }
         else if ( input instanceof Integer ){
 
-            data = ( int ) input;
+            data = new BigDecimal( ( int ) input );
 
         }
         else if ( input instanceof Double ){
             
-            data = ( Double ) input;
+            data = new BigDecimal( ( Double ) input );
             
         }
         else if ( input instanceof Num ){
             
             data = ( ( Num ) input ).data;
   
+        }
+        else if ( input instanceof BigDecimal ){
+            
+            data = ( BigDecimal ) input;
+            
         }
         
     }
@@ -41,19 +50,19 @@ public class Num {
     
     public double toDouble(){
 
-        return data;
+        return data.doubleValue();
         
     }
     
     public long toLong(){
         
-        return ( long ) data;
+        return data.longValue();
         
     }
     
     public int toInt(){
         
-        return ( int ) data;
+        return data.intValue();
         
     }
     
@@ -68,7 +77,7 @@ public class Num {
     
     public Num inverse(){
         
-        data = 1 / data;
+        data = data.pow( -1 );
         
         return this;
         
@@ -82,35 +91,43 @@ public class Num {
     
     public void increment(){
         
-        data = data + 1;
+        data = data.add( new BigDecimal( 1 ) );
         
     }
     
     public Num add( Object addingValue ){
         
-        return new Num( data + new Num( addingValue ).toDouble() );
+        return new Num( data.add( new Num( addingValue ).data ) );
         
     }
     
     public Num div( Object divValue ){
 
-        return new Num( data / new Num( divValue ).toDouble() );
+        Num dividant =  new Num( divValue );
+  
+        return new Num( data.divide( dividant.data , 5 , RoundingMode.HALF_EVEN ) );
         
     }
     
     public Num multiply( Object multiplyValue ){
         
-        return new Num( data * new Num( multiplyValue ).toDouble() );
+        return new Num( data.multiply( new Num( multiplyValue ).data ) );
         
     }
     
     public Num power( Object base ){
         
-        return new Num( Math.pow( data , ( new Num( base ) ).toDouble() ) );
+        return new Num( Math.pow( data.intValue() , ( new Num( base ) ).toDouble() ) );
         
     }
     
-    public boolean equals( Num compare ){
+    public Num pow( int base ){
+        
+        return new Num( data.pow( base ) );
+        
+    }
+    
+    public boolean equals( Num compare ){ //Close enough
         
         return toDouble() == compare.toDouble();
         

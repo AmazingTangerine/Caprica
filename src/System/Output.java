@@ -3,6 +3,7 @@ package System;
 import Datatypes.Matrix;
 import Datatypes.Num;
 import Datatypes.Vector;
+import Units.Unit;
 
 public class Output {
     
@@ -23,6 +24,13 @@ public class Output {
         else if ( input instanceof Num ){
             
             return "" + ( ( Num ) input ).toDouble();
+            
+        }
+        else if ( input instanceof Unit ){
+            
+            Unit unitPrime = ( ( Unit ) input );
+            
+            return "" + unitPrime.data.toDouble() + "[" + unitPrime.unit + "]";
             
         }
         else if ( input instanceof Matrix ){

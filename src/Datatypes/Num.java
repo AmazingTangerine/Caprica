@@ -77,7 +77,7 @@ public class Num {
     
     public Num inverse(){
         
-        data = data.pow( -1 );
+        data = new BigDecimal( 1 ).divide( data , 30 , RoundingMode.HALF_EVEN );
         
         return this;
         
@@ -123,7 +123,16 @@ public class Num {
     
     public Num pow( int base ){
         
-        return new Num( data.pow( base ) );
+        if ( base < 0 ){
+        
+            return new Num( data.pow( base * -1 ) ).inverse();
+        
+        }
+        else {
+            
+            return new Num( data.pow( base ) );
+            
+        }
         
     }
     

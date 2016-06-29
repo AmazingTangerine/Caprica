@@ -13,11 +13,11 @@ public class TestField {
      */
     public static void test(){
         
-        Unit a = new Unit( new Num( 1000 ) , "m" , "length" );
+        Unit a = new Unit( new Num( 3.14 ) , "rad" , "angle" );
         
         Output.print( a , new Num( 0 ) );
         Output.print( "\n" , new Num( 0 ) );
-        Output.print( a.neat() , new Num( 0 ) );
+        Output.print( a.toBase() , new Num( 0 ) );
         
     }
     

@@ -13,11 +13,13 @@ public class Unit {
         typeName = new HashMap<  >();
         
         typeName.put( "length" , "m" );
+        typeName.put( "angle" , "deg" );
         
     }
     
     public Num mInFt = new Num( 0.3048 );
     public Num mInIn = new Num( 0.0254 ); 
+    public Num degInRad = new Num( 180 / Math.PI ); 
     
     public Num data;
     public String unit;
@@ -48,31 +50,20 @@ public class Unit {
     public Unit( Num input , String inputUnit , String inputType ){
         
         init();
-        
+
         data = input;
         type = inputType;
         
         if ( inputUnit.contains( typeName.get( type ) ) ){ //Metric
             
-            if ( inputUnit.equals( typeName.get( inputType ) ) ){
-                
-                unit = inputUnit;
-                
-            }
-            else{
-            
-                unit = inputUnit.replaceFirst( typeName.get( type )  , "" );
-            
-            }
-            
+            unit = inputUnit;
             metric = true;
             
         }
-        else { //Imperial
+        else { //Other
             
             unit = inputUnit;
             metric = false;
-            type = inputType;
         
         }
         
@@ -93,43 +84,89 @@ public class Unit {
         
     }
     
-    public void toBase() {
+    public Unit toBase() {
 
         if ( type.equals( "length" ) ){
-        
-            unit = "m";
-        
+
             if ( metric ){
             
                 int power = Prefix.PREFIXES.get( unit );
        
-                data = new Num( data.pow( power ) );
+                return new Unit( new Num( data.pow( power ) ) , "m" , type );
             
             }
             else{
             
                 if ( unit.equals( "ft" ) ){
-                
-                    data = data.multiply( mInFt );
-                
+                    
+                    return new Unit( new Num( data.multiply( mInFt ) ) , "m" , type );
+
                 }
                 else if ( unit.equals( "in" ) ){
-                
-                    data = data.multiply( mInIn );
-                
+                    
+                    return new Unit( data.multiply( mInIn ) , unit , type );
+
                 }
             
             }
         
         }
+        else if ( type.equals( "angle" ) ){
+            
+            if ( unit.contains( "rad" ) ){
+                
+                return new Unit( data.multiply( degInRad ) , typeName.get( type ) , type );
+                
+            }
+            else{
+                
+                return new Unit( data.multiply( degInRad ) , typeName.get( type ) , type );
+                
+            }
+                
+        }
+        
+        return null;
         
     }
     
     public Unit neat(){ //How neat is that
 
-        if ( data.less( 0 ) ){
+        if ( data.less( 1 ) ){
             
+            String rawNumber = data.toString();
+            Num digits = new Num( 0 );
             
+            for ( Num i = new Num( 2 ) ; i.less( rawNumber.length() ) ; i.increment() ){
+                
+                if ( rawNumber.charAt( i.toInt() ) == '0' ){
+                    
+                    digits.increment();
+                    
+                }
+                else {
+                    
+                    break;
+                    
+                }
+                
+            }
+            
+            Num power = new Num( Math.floor( digits.div( new Num( 3 ) ).toDouble() ) ).multiply( new Num( -3 ) ); //Note: add floor and ceil to Num class
+            
+            for ( String unitName : Prefix.PREFIXES.keySet() ){
+                
+                if ( Prefix.PREFIXES.get( unitName ).equals( power.toInt() ) ){
+                    
+                    unit = unitName;
+                    
+                    break;
+                    
+                }
+                
+            }
+
+            return new Unit( data.div( new Num( 10 ).pow( power.toInt() ) ) , unit + typeName.get( type ) , type );
             
         }
         else{
@@ -150,13 +187,10 @@ public class Unit {
                 
             }
             
-            return new Unit( data.div( new Num( 1 ).pow( power.toInt() ) ) , unit , type );
-            
-            
+            return new Unit( data.div( new Num( 10 ).pow( power.toInt() ) ) , unit + typeName.get( type ) , type );
+                  
         }
-        
-        return null;
-        
+
     }
     
 }

@@ -197,11 +197,4 @@ public class Unit {
 
     }
     
-    @Override
-    public String toString(){
-        
-        return data.toDouble() + "[" + unit + "]";
-        
-    }
-    
 }

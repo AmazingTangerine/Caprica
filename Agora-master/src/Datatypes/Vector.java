@@ -126,8 +126,7 @@ public class Vector {
      * The vector expressed in string for debug
      * @return The string form of the vector
      */
-    @Override
-    public String toString(){
+    public String asString(){
         
         Num counter = new Num( 0 );
         String compile = "";

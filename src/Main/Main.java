@@ -1,27 +1,35 @@
 package Main;
 
 import Display.Screen;
+import System.Update;
 import Windows.Desktop;
 
 public class Main {
 
     public static void main( String[] arguments ) {
 
-        boolean testingMode = true;
+        boolean testingMode = false;
+        boolean guiMode = false;
         
         if ( !testingMode ){
         
-            //Start the GUI
-            Screen GUI = new Screen( "Agora" );
+            Update.start();
+            
+            if ( guiMode ){
+            
+                //Start the GUI
+                Screen GUI = new Screen( "Agora" );
         
-            Desktop desktop = new Desktop();
+                Desktop desktop = new Desktop();
         
-            GUI.addWindow( desktop );
+                GUI.addWindow( desktop );
         
+            }
+            
         }
         else{
             
-            TestField.test();
+            Update.download();
             
         }
         

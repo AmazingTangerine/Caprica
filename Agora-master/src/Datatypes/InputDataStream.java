@@ -1,9 +1,7 @@
 package Datatypes;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.io.Reader;
 
 public class InputDataStream {
@@ -80,42 +78,6 @@ public class InputDataStream {
         catch( Exception E ){}//Nothing we can do since we cannot throw an exception
         
         return "";
-        
-    }
-    
-    public static void download( String fileAddress ){
-        
-        GlobalFile downloadLocation = new GlobalFile( fileAddress );
-        
-        if ( downloadLocation.exists() ){
-            
-            downloadLocation.delete();
-            
-        }
-        
-    }
-    
-    public boolean write( OutputStream stream ){
-        
-        try {
-            
-            int line;
-            
-            while ( ( line = inputStream.read() ) != -1 ){
-                
-                stream.write( line );
-                
-            }
-            
-            stream.flush();
-            stream.close();
-            
-            return true;
-            
-        }
-        catch( Exception E ){} //add correction
-        
-        return false;
         
     }
     

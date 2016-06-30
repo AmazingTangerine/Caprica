@@ -1,5 +1,6 @@
 package System;
 
+import Datatypes.InputDataStream;
 import Datatypes.Num;
 
 public class Control {
@@ -16,6 +17,21 @@ public class Control {
             
         }
         catch( Exception E ){}
+        
+    }
+    
+    public static String exec( String command ){
+        
+        try {
+        
+            Process process = Runtime.getRuntime().exec( command );
+        
+            return new InputDataStream( process.getInputStream() ).toString() + new InputDataStream( process.getErrorStream() ).toString();
+            
+        }
+        catch( Exception e ){}
+            
+        return null;
         
     }
     

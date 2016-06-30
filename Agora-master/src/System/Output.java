@@ -17,7 +17,29 @@ public class Output {
      */
     public static String interpretObject( Object input ){
         
-        if ( input instanceof Matrix ){
+        if ( input instanceof Vector ){
+            
+            Vector vector = ( Vector ) input;
+            
+            return vector.asString();
+            
+        }
+        else if ( input instanceof Num ){
+            
+            DecimalFormat format = new DecimalFormat( "#.####" );
+            format.setRoundingMode( RoundingMode.HALF_EVEN );
+            
+            return "" + format.format( ( ( Num ) input ).toDouble() );
+            
+        }
+        else if ( input instanceof Unit ){
+            
+            Unit unitPrime = ( ( Unit ) input );
+            
+            return "" + unitPrime.data.toDouble() + "[" + unitPrime.unit + "]";
+            
+        }
+        else if ( input instanceof Matrix ){
             
             Matrix matrix = ( Matrix ) input;
             
@@ -60,14 +82,5 @@ public class Output {
         
     }
     
-    /**
-     * Same as print just assumes log level is 0
-     * @param rawInput The object to be converted to string and printed
-     */
-    public static void print( Object rawInput ){
-        
-        print( rawInput , new Num( 0 ) );
-        
-    }
     
 }

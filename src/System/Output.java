@@ -4,6 +4,9 @@ import Datatypes.Matrix;
 import Datatypes.Num;
 import Datatypes.Vector;
 import Units.Unit;
+import java.math.MathContext;
+import java.math.RoundingMode;
+import java.text.DecimalFormat;
 
 public class Output {
     
@@ -23,7 +26,10 @@ public class Output {
         }
         else if ( input instanceof Num ){
             
-            return "" + ( ( Num ) input ).toDouble();
+            DecimalFormat format = new DecimalFormat( "#.####" );
+            format.setRoundingMode( RoundingMode.HALF_EVEN );
+            
+            return "" + format.format( ( ( Num ) input ).toDouble() );
             
         }
         else if ( input instanceof Unit ){

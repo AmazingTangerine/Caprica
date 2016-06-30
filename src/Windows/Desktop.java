@@ -1,5 +1,6 @@
 package Windows;
 
+import Datatypes.Num;
 import Datatypes.Vector;
 import DrawingTypes.Drawable;
 import Display.Variables;
@@ -11,7 +12,7 @@ public class Desktop extends BaseWindow implements Drawable {
 
     public Desktop(){
         
-        super( new Vector( 0 , 0 ) , Variables.BASE_SIZE );
+        super( new Vector( new Num( 0 ) , new Num( 0 ) ) , Variables.BASE_SIZE );
         
     }
     

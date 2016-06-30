@@ -1,1 +1,1 @@
-java -jar dist/Agora.jar 80 24
+java -jar dist/Agora.jar

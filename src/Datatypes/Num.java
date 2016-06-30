@@ -3,10 +3,11 @@ package Datatypes;
 import System.Output;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.text.DecimalFormat;
 
 public class Num {
 
-    BigDecimal data;
+    public BigDecimal data;
     
     //Initializing from primative types
     
@@ -69,7 +70,10 @@ public class Num {
     @Override
     public String toString(){
         
-        return "" + data;
+        DecimalFormat format = new DecimalFormat( "#.####" );
+        format.setRoundingMode( RoundingMode.HALF_EVEN );
+        
+        return "" + format.format( toDouble() );
         
     }
     

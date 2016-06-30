@@ -13,7 +13,7 @@ public class Unit {
         typeName = new HashMap<  >();
         
         typeName.put( "length" , "m" );
-        typeName.put( "angle" , "deg" );
+        typeName.put( "angle" , "rad" );
         
     }
     
@@ -90,9 +90,18 @@ public class Unit {
 
             if ( metric ){
             
-                int power = Prefix.PREFIXES.get( unit );
+                if ( !typeName.get( type ).equals( unit ) ){
+                
+                    int power = Prefix.PREFIXES.get( unit );
        
-                return new Unit( new Num( data.pow( power ) ) , "m" , type );
+                    return new Unit( new Num( data.pow( power ) ) , "m" , type );
+                
+                }
+                else{
+                    
+                    return new Unit( data , "m" , type );
+                    
+                }
             
             }
             else{
@@ -113,14 +122,9 @@ public class Unit {
         }
         else if ( type.equals( "angle" ) ){
             
-            if ( unit.contains( "rad" ) ){
+            if ( unit.contains( "deg" ) ){
                 
-                return new Unit( data.multiply( degInRad ) , typeName.get( type ) , type );
-                
-            }
-            else{
-                
-                return new Unit( data.multiply( degInRad ) , typeName.get( type ) , type );
+                return new Unit( data.div( degInRad ) , typeName.get( type ) , type );
                 
             }
                 

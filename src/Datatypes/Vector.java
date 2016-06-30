@@ -1,6 +1,10 @@
 package Datatypes;
 
+import System.Output;
+import Units.Unit;
 import java.awt.Dimension;
+import java.math.RoundingMode;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -21,6 +25,8 @@ public class Vector {
         
     }
     
+    public Vector(){};
+    
     /**
      * Converts swing dimension to our vector class
      * @param vectorInput 
@@ -32,6 +38,27 @@ public class Vector {
         
     }
 
+    public Vector( Unit... unitEntry ){
+
+        if ( unitEntry.length == 2 ){
+ 
+            if ( unitEntry[ 1 ].type.equals( "angle" ) ){ //Polar
+
+                Num radius = unitEntry[ 0 ].toBase().data;
+                Num angle = unitEntry[ 1 ].toBase().data;
+
+                Num x = new Num( Math.cos( angle.toDouble() ) * radius.toDouble() );
+                Num y = new Num( Math.sin( angle.toDouble() ) * radius.toDouble() );
+                
+                data.add( x );
+                data.add( y );
+                
+            }
+            
+        }
+        
+    }
+    
     /**
      * Get X value
      * @return Returns the first number in the vector 
@@ -106,16 +133,19 @@ public class Vector {
         
         String[] names = new String[]{ "X" , "Y" , "Z" };
         
+        DecimalFormat format = new DecimalFormat( "#.####" );
+        format.setRoundingMode( RoundingMode.HALF_EVEN );
+ 
         for ( Num value : data ){
             
             if ( counter.less( names.length ) ){
 
-                compile += names[ counter.toInt() ] + ":" + value.toDouble() + " ";
+                compile += names[ counter.toInt() ] + ":" + format.format( value.toDouble() ) + " ";
                 
             }
             else{
-                
-                compile += counter.toInt() + ":" + value.toDouble() + " ";
+
+                compile += counter.toInt() + ":" + format.format( value.toDouble() ) + " ";
                 
             }
             

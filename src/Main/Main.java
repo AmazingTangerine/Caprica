@@ -13,9 +13,14 @@ public class Main {
         
         if ( !testingMode ){
         
-            Update.start();
+            try {
             
-            if ( guiMode ){
+                Update.start();
+            
+            }
+            catch( Exception e ){}
+            
+            if ( !guiMode ){
             
                 //Start the GUI
                 Screen GUI = new Screen( "Agora" );

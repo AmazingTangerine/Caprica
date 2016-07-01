@@ -2,6 +2,8 @@ package Datatypes;
 
 import System.Control;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -14,6 +16,12 @@ public class GlobalFile {
     public GlobalFile( String address ){
         
         fileAddress = address;
+        
+    }
+    
+    public InputStream getStream() throws FileNotFoundException {
+        
+        return new FileInputStream( new File( fileAddress ) );
         
     }
     

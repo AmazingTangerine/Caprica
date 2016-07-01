@@ -1,7 +1,0 @@
-xset s off
-xset -dpms
-matchbox-window-manager &
-while true; do
-    rsync -qr --delete --exclude='.Xauthority' //kiosk/ $HOME/
-    chromium-browser --app=http://myserver/mywebapp
-done

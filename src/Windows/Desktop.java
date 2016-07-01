@@ -12,7 +12,7 @@ public class Desktop extends BaseWindow implements Drawable {
 
     public Desktop(){
         
-        super( new Vector( new Num( 0 ) , new Num( 0 ) ) , Variables.BASE_SIZE );
+        super( new Vector( 0 , 0 ) , Variables.BASE_SIZE );
         
     }
     

@@ -7,29 +7,17 @@ import java.io.FileNotFoundException;
 
 public class Update {
 
-    public static boolean download(){
-                
-        try {
-        
-            InputDataStream agoraGit = Webpage.download( "https://github.com/AmazingTangerine/Agora/archive/master.zip" );
+    public static void download() throws Exception {
 
-            GlobalFile collection = new GlobalFile( "/Agora/update.zip" );
-            collection.writeStream( agoraGit , false );
-            
-            return true;
-            
-        }
-        catch( Exception E ){
-            
-            E.printStackTrace();
-            
-        }
-        
-        return false;
+        InputDataStream agoraGit = Webpage.download( "https://github.com/AmazingTangerine/Agora/archive/master.zip" );
+
+        GlobalFile collection = new GlobalFile( "/Agora/update.zip" );
+        collection.writeStream( agoraGit , false );
+
         
     }
 
-    public static boolean check() throws FileNotFoundException{
+    public static boolean check() throws Exception {
         
         download();
         
@@ -46,7 +34,7 @@ public class Update {
         
     }
  
-    public static boolean start() throws FileNotFoundException {
+    public static boolean start() throws Exception {
         
         boolean isCurrentVersion = check();
         

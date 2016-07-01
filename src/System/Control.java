@@ -20,18 +20,36 @@ public class Control {
         
     }
     
-    public static String exec( String command ){
+    public static String exec( String command , boolean wait ){
         
         try {
         
             Process process = Runtime.getRuntime().exec( command );
-        
+
+            if ( wait ){
+            
+                process.waitFor();
+            
+            }
+            
             return new InputDataStream( process.getInputStream() ).toString() + new InputDataStream( process.getErrorStream() ).toString();
             
         }
-        catch( Exception e ){}
+        catch( Exception e ){ e.printStackTrace(); }
             
         return null;
+        
+    }
+    
+    public static String exec( String command ){
+        
+        return exec( command , true );
+        
+    }
+    
+    public static void exit( int level ){
+        
+        System.exit( level );
         
     }
     

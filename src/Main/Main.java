@@ -1,26 +1,36 @@
 package Main;
 
 import Display.Screen;
+import Internet.Information;
+import System.Control;
+import System.Output;
+import System.Report;
+import System.Setup;
 import System.Update;
 import Windows.Desktop;
 
 public class Main {
 
+    public static boolean debugMode = true;
+    
     public static void main( String[] arguments ) {
 
         boolean testingMode = false;
         boolean guiMode = false;
+ 
+        Output.log( new Report( "Starting Agora" ) , "debug" );
         
         if ( !testingMode ){
-        
-            try {
-            
-                Update.start();
-            
+
+            if ( !Setup.setup() ){
+                
+                Output.log( new Report( "Could not initiate setup" ) , "critical" );
+                
+                Control.exit( 1 );
+                
             }
-            catch( Exception e ){}
-            
-            if ( !guiMode ){
+                 
+            if ( guiMode ){
             
                 //Start the GUI
                 Screen GUI = new Screen( "Agora" );
@@ -33,8 +43,8 @@ public class Main {
             
         }
         else{
-            
-            Update.download();
+        
+            TestField.test();
             
         }
         

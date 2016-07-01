@@ -4,6 +4,7 @@ import Datatypes.GlobalFile;
 import Datatypes.InputDataStream;
 import Datatypes.Num;
 import Datatypes.Vector;
+import Internet.Information;
 import Internet.Webpage;
 import System.Output;
 import Units.Unit;
@@ -16,7 +17,6 @@ public class TestField {
     public static void test(){
 
 
-            
     }
     
 }

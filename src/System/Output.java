@@ -47,6 +47,12 @@ public class Output {
         
     }
     
+    public static void log( Report report , String reportType ){
+        
+        //Write to logs
+        
+    }
+    
     /**
      * 
      * @param rawInput The raw input, it'll be interpreted into a string
@@ -56,8 +62,27 @@ public class Output {
         
         String refinedInput = interpretObject( rawInput );
    
-        System.out.println( refinedInput );
-        
+        if ( logLevel.less( new Num( 0 ) ) ){
+            
+            if ( Main.Main.debugMode ){
+                
+                System.out.println( refinedInput );
+                
+            }
+            
+        }
+        else{
+            
+            System.out.println( refinedInput );
+            
+            if ( logLevel.equals( new Num( 0 ) ) ){
+                
+                log( new Report( refinedInput ) , "debug" );
+                
+            }
+            
+        }
+ 
     }
     
     /**

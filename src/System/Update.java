@@ -52,7 +52,7 @@ public class Update {
         
         if ( !isCurrentVersion ){ //Must shut down and reload jar
             
-            Control.exec( "./Agora/run.sh &" );
+            Control.exec( "./run.sh | at now + 5 seconds" );
             
             System.exit( 0 );
             

@@ -16,7 +16,8 @@ public class Main {
     public static void main( String[] arguments ) {
 
         boolean testingMode = false;
-        boolean guiMode = false;
+        boolean guiMode = true;
+        boolean serverMode = false;
  
         Output.log( new Report( "Starting Agora" ) , "debug" );
         
@@ -30,16 +31,27 @@ public class Main {
                 
             }
                  
-            if ( guiMode ){
-            
-                //Start the GUI
-                Screen GUI = new Screen( "Agora" );
-        
-                Desktop desktop = new Desktop();
-        
-                GUI.addWindow( desktop );
-        
+            if ( serverMode ){
+                
+                
+                
             }
+            else{
+                
+                if ( guiMode ){
+            
+                    //Start the GUI
+                    Screen GUI = new Screen( "Agora" );
+        
+                    Desktop desktop = new Desktop();
+        
+                    GUI.addWindow( desktop );
+        
+                }
+                
+            }
+            
+
             
         }
         else{

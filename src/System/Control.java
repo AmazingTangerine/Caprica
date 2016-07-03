@@ -9,11 +9,13 @@ public class Control {
      * Puts caller thread to sleep
      * @param seconds The time in seconds for the thread to sleep
      */
-    public static void sleep( Num seconds ){
+    public static void sleep( Object rawSeconds ){
+        
+        Num seconds = new Num( rawSeconds );
         
         try {
             
-            Thread.sleep( seconds.toLong() * 1000 );
+            Thread.sleep( Math.round( seconds.toDouble() * 1000 ) );
             
         }
         catch( Exception E ){}

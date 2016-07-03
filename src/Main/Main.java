@@ -16,10 +16,20 @@ public class Main {
     public static void main( String[] arguments ) {
 
         boolean testingMode = false;
-        boolean guiMode = true;
+        boolean guiMode = false;
         boolean serverMode = false;
  
         Output.log( new Report( "Starting Agora" ) , "debug" );
+        
+        if ( arguments.length > 0 ){
+            
+            Output.log( new Report( "Argument entry mode" ) , "debug" );
+            
+            testingMode = Boolean.parseBoolean( arguments[ 0 ] );
+            guiMode = Boolean.parseBoolean( arguments[ 1 ] );
+            serverMode = Boolean.parseBoolean( arguments[ 2 ] );
+            
+        }
         
         if ( !testingMode ){
 
@@ -33,7 +43,7 @@ public class Main {
                  
             if ( serverMode ){
                 
-                
+                ServerStart.start();
                 
             }
             else{

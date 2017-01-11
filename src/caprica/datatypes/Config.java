@@ -7,6 +7,12 @@ public class Config {
     private HashMap< String , String > data = new HashMap<>();
     private SystemFile configFile;
     
+    public Config( String configFile ){
+        
+        this( new SystemFile( configFile ) );
+        
+    }
+    
     public Config( SystemFile configFile ) {
         
         this.configFile = configFile;

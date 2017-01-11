@@ -28,8 +28,13 @@ public class Server {
         
         this.port = port;
         this.encyptionKey = config.get( "key" );
-        this.encypter = new RSA( config.get( "rsa_e" ) , config.get( "rsa_d" ) , config.get( "rsa_n" ) );
  
+    }
+    
+    public void setEncypter( RSA rsa ){
+        
+        this.encypter = rsa;
+        
     }
     
     public void addCommandManagers( CommandManager[] managers ){

@@ -110,7 +110,7 @@ public class SystemInformation {
         return "Linux";
         
     }
-    
+ 
     public static String getAppData(){
 
         String appData = "/Caprica/";

@@ -34,6 +34,41 @@ public class Control {
         
     }
     
+    public static String execParams( String[] parameters , boolean wait ){
+        
+        try {
+        
+            Process process = new ProcessBuilder( parameters ).start();
+
+            if ( wait ){
+            
+                process.waitFor();
+            
+            }
+            
+            String response = "";
+            
+            if ( process.getInputStream().available() > 0 ){
+                
+                response += new InputDataStream( process.getInputStream() ).toString();
+                
+            }
+            
+            if ( process.getErrorStream().available() > 0 ){
+                
+                response += new InputDataStream( process.getErrorStream() ).toString();
+                
+            }
+            
+            return response;
+            
+        }
+        catch( Exception e ){ e.printStackTrace(); }
+            
+        return null;
+        
+    }
+    
     public static String exec( String command , boolean wait ){
         
         try {
@@ -46,7 +81,21 @@ public class Control {
             
             }
             
-            return new InputDataStream( process.getInputStream() ).toString() + new InputDataStream( process.getErrorStream() ).toString();
+            String response = "";
+            
+            if ( process.getInputStream().available() > 0 ){
+                
+                response += new InputDataStream( process.getInputStream() ).toString();
+                
+            }
+            
+            if ( process.getErrorStream().available() > 0 ){
+                
+                response += new InputDataStream( process.getErrorStream() ).toString();
+                
+            }
+            
+            return response;
             
         }
         catch( Exception e ){ e.printStackTrace(); }

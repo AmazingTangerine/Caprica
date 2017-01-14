@@ -13,11 +13,23 @@ public class Color {
         
     }
     
+    public Color( int r , int g , int b ){
+        
+        colorVector = new Vector( r , g , b );
+        
+    }
+    
     public void draw( Graphics graphics ){
         
         java.awt.Color color = new java.awt.Color( colorVector.getX().toInt() , colorVector.getY().toInt() , colorVector.getZ().toInt() );
         
         graphics.setColor( color );
+        
+    }
+    
+    public java.awt.Color asColor(){
+        
+        return new java.awt.Color( colorVector.getX().toInt() , colorVector.getY().toInt() , colorVector.getZ().toInt() );
         
     }
     

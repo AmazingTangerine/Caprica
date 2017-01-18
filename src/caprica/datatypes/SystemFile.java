@@ -1,6 +1,7 @@
 package caprica.datatypes;
 
 import caprica.system.Output;
+import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -11,6 +12,8 @@ import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 
 public class SystemFile {
     
@@ -19,7 +22,7 @@ public class SystemFile {
     
     public SystemFile( String filePath ){
         
-        fileAddress = filePath.replace( "\\" , "/" );;
+        fileAddress = filePath.replace( "\\" , "/" );
         file = new File( filePath );
         
     }
@@ -115,10 +118,8 @@ public class SystemFile {
     }
     
     public boolean create() {
-        
-        File folder = new File( getFolder() );
-
-        if ( folder.isDirectory() ){
+       
+        if ( getFilePath().contains( "." ) ){
             
             try {
                     
@@ -130,7 +131,7 @@ public class SystemFile {
         }
         else {
         
-            if ( folder.mkdirs() ){
+            if ( file.mkdirs() ){
                 
                 try {
                     
@@ -309,6 +310,69 @@ public class SystemFile {
         if ( !copyFile.exists() ){ copyFile.create(); }
         
         Files.copy( this.getFile().toPath() , copyFile.getFile().toPath() , StandardCopyOption.REPLACE_EXISTING );
+        
+    }
+    
+    public boolean unZip() throws FileNotFoundException, IOException {
+        
+        SystemFile zipFolder = new SystemFile( this.getFilePath().replace( ".zip" , "/" ) );
+     
+        if ( zipFolder.exists() ){
+            
+            zipFolder.delete();
+            
+        }
+        
+        if ( !zipFolder.exists() ){
+            
+            zipFolder.create();
+            
+            if ( zipFolder.exists() ){
+                
+                ZipInputStream zipStream = new ZipInputStream( new FileInputStream( this.getFilePath() ) );
+                
+                ZipEntry entry = zipStream.getNextEntry();
+                
+                while ( entry != null ){
+                    
+                    String newPath = this.getFilePath().replace( ".zip" , "/" ) + entry.getName();
+
+                    if ( !entry.isDirectory() ){
+              
+                        new SystemFile( newPath ).create();
+                        
+                        BufferedOutputStream outputStream = new BufferedOutputStream( new FileOutputStream( newPath ) );
+        
+                        byte[] buffer = new byte[ 4096 ];
+        
+                        int read;
+        
+                        while ( ( read = zipStream.read( buffer ) ) != -1 ){
+                        
+                            outputStream.write( buffer , 0 , read );
+                        
+                        }
+                        
+                        outputStream.close();
+                        
+                    }
+                    else {
+                        
+                        new SystemFile( newPath + "/" ).create();
+                        
+                    }
+                    
+                    entry = zipStream.getNextEntry();
+                    
+                }
+                
+                return true;
+                
+            }
+            
+        }
+        
+        return false;
         
     }
     

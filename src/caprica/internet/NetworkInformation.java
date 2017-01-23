@@ -18,7 +18,7 @@ public class NetworkInformation {
      * Determines weather or not the system has an external internet connection based on ping
      * @return true if the system has an external connection
      */
-    public boolean hasInternet(){
+    public static boolean hasInternet(){
         
         if ( SystemInformation.getOS().equals( "Linux" ) ){
         
@@ -45,7 +45,7 @@ public class NetworkInformation {
         
     }
    
-    public String externalIP(){
+    public static String externalIP(){
       
         if ( hasInternet() ){
         
@@ -63,7 +63,7 @@ public class NetworkInformation {
         
     }
     
-    public String internalIP(){
+    public static String internalIP(){
         
             try {
             
@@ -104,7 +104,7 @@ public class NetworkInformation {
             
     }
     
-    public String getMAC(){
+    public static String getMAC(){
         
         String MAC = "02:00:00:00:00:00";   
         

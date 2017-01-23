@@ -2,6 +2,7 @@ package caprica.server;
 
 import caprica.datatypes.Config;
 import caprica.encyption.RSA;
+import caprica.system.Output;
 import java.io.IOException;
 import java.net.Socket;
 
@@ -24,24 +25,55 @@ public class Bridge {
         
         this.self = this;
         this.encyptionKey = config.get( "key" );
-        this.encypter = new RSA( config.get( "rsa_e" ) , config.get( "rsa_d" ) , config.get( "rsa_n" ) );
-        
+ 
         online = false;
+        
+    }
+    
+    public void setEncypter( RSA rsa ){
+        
+        this.encypter = rsa;
         
     }
     
     public void connect( String inputServerIP  , int port ) throws IOException {
          
+        Output.print( "Connecting to " + inputServerIP );
+        
         connecting = true;
         
         Socket connectingSocket = new Socket( inputServerIP , port );
         
         connection = new Connection( connectingSocket , inputServerIP , encyptionKey , encypter );
         
-        BaseCommandManager manager = new BaseCommandManager();
+        Output.print( "Connection succesful" );
         
-        connection.addCommandManager( manager );
-
+        Command response = connection.getLastCommand( 2 );
+        
+        if ( response != null ){
+        
+            Output.print( "Server sent response" );
+            
+            if ( response.get( 0 ).equals( CommunicationConstants.KNOCK_KNOCK.get( 0 ) ) ){
+            
+                Output.print( "Knock knock accepted" );
+                
+                connection.sendCommandSurpressed( new Command( CommunicationConstants.KNOCK_RESPONSE , "" ) );
+            
+            }
+            else {
+                
+                Output.print( "Server knock not accepted" );
+                
+            }
+        
+        }
+        else {
+            
+            Output.print( "Server did not respond to knock" );
+            
+        }
+        
         connecting = false;
         
     }

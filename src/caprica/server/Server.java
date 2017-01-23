@@ -3,6 +3,7 @@ package caprica.server;
 
 import caprica.datatypes.Config;
 import caprica.encyption.RSA;
+import caprica.system.Output;
 import caprica.system.Subroutine;
 import java.io.File;
 import java.io.IOException;
@@ -57,7 +58,7 @@ public class Server {
     }
    
     public String getEncyptionKey(){
-        
+
         return encyptionKey;
         
     }

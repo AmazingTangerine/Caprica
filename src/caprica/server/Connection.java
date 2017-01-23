@@ -64,29 +64,9 @@ public class Connection {
         
         assembly = new BlockAssembly( encyptionKey );
         
-        addCommandManager( new BaseCommandManager() );
-
         listener = new Subroutine( new Listener( this ) );
         listener.start();
 
-    }
-   
-    public Connection( Socket socket , String encyptionKey , RSA encypter ) throws IOException{ //Http entry
-        
-        this.socket = socket;
-        this.encypter = encypter;
-        this.encyptionKey = encyptionKey;
-        
-        httpInputStream = new InputStreamReader( socket.getInputStream() );
-        httpOutputStream = new BufferedWriter( new OutputStreamWriter( socket.getOutputStream() ) );
-        
-        addCommandManager( new BaseCommandManager() );
-        
-        listener = new Subroutine( new HttpListener( this ) );
-        listener.start();
-        
-        httpMode = true;
-        
     }
     
     public void setID( String id ){
@@ -122,21 +102,10 @@ public class Connection {
     public void sendCommandSurpressed( Command command ){ //Does not throw a warning if message could not be sent
         
         try {
-            
-            if ( httpMode ){
   
-                httpOutputStream.write( command.toString() , 0 , command.toString().length() );
-                httpOutputStream.newLine();
-                httpOutputStream.flush();
-            
-            }
-            else {
-        
-                InformationBlock messageBlock = new InformationBlock( command.toString() , assembly , encypter );
-                messageBlock.write( outputStream );
-        
-            }
-            
+            InformationBlock messageBlock = new InformationBlock( command.toString() , assembly , encypter );
+            messageBlock.write( outputStream );
+   
         }
         catch( Exception e ){}
         
@@ -243,66 +212,7 @@ public class Connection {
         return lastCommand;
         
     }
-    
-    private class HttpListener implements ThreadRoutine {
-     
-        Connection parent;
-        BufferedReader reader;
-        
-        public HttpListener( Connection parent ){
-            
-            this.parent = parent;
-            
-            reader = new BufferedReader( httpInputStream );
-            
-        }
-        
-        @Override
-        public void run() {
-          
-            String message = null;
-            boolean stop = false;
-            
-            try {
-            
-                message = reader.readLine();
-       
-            }
-            catch( Exception e ){
-                
-                stop = true;
-                
-            }
-     
-            if ( !stop ){
-                
-                if ( message == null ){ stop = true; }
-                
-                if ( !stop ){
-                    
-                    if ( message.equals( "" ) ){ stop = true; }
-                    
-                    if ( !stop ){ 
-        
-                        lastCommand = new Command( message );
-                
-                        newMessage = true;
-                
-                        for ( CommandManager manager : commandManagers ){
-                    
-                            manager.Manage( lastCommand );
-
-                        }
-                        
-                    }
-                    
-                }
-                
-            }
-
-        }
-        
-    }
+   
     
     private class Listener implements ThreadRoutine {
      
@@ -320,7 +230,7 @@ public class Connection {
             try {
             
                 InformationBlock blockMessage = new InformationBlock( inputStream , assembly , encypter );
-                
+               
                 String decyptedMessage = blockMessage.getMessage();
          
                 lastCommand = new Command( decyptedMessage );

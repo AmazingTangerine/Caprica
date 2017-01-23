@@ -47,7 +47,7 @@ public class InformationBlock {
             blockSize = message.length();
             
         }
-
+     
         block = assembly.encypt( block );
         
     }

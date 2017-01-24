@@ -228,8 +228,8 @@ public class Num {
         
         return new Num( Math.round( this.getDouble() ) );
         
-    }
     
+    }
     public Num mod( int modulus ){
         
         if ( this.less( modulus ) ){

@@ -76,9 +76,9 @@ public class BlockAssembly {
         
         String decypted = "";
         char[] splitMessage = message.toCharArray();
-        
+       
         int blocks = message.length() / pad.getBlockLength();
-
+        
         for ( int i = 0 ; i < blocks ; i++ ){
 
             int[] rawBlock = new int[ pad.getBlockLength() ];
@@ -106,7 +106,7 @@ public class BlockAssembly {
             }
 
         }
-         
+    
         return decypted;
         
     }

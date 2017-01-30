@@ -41,9 +41,9 @@ public class IncomingClientHandler implements ThreadRoutine {
                         
             Output.print( "Inbound connection from " + IP );
             
-            Connection clientConnection = new Connection( inboundSocket , IP , server.getEncyptionKey() , server.getEncypter() );
+            Connection clientConnection = new Connection( inboundSocket , IP , server.getEncyptionKey() , server.getEncypter() ); //Sets up connection class, encytion ect
             
-            Control.sleep( 0.2 );
+            Control.sleep( 0.5 );
             
             for ( int i = 0 ; i < 3 ; i++ ){
             
@@ -53,7 +53,7 @@ public class IncomingClientHandler implements ThreadRoutine {
             
                     clientConnection.sendCommand( CommunicationConstants.KNOCK_KNOCK );
                 
-                    Command response = clientConnection.getLastCommand( 4 );
+                    Command response = clientConnection.getLastCommand( 6 ); //3 seconds
             
                     if ( response != null ){
         
@@ -79,7 +79,6 @@ public class IncomingClientHandler implements ThreadRoutine {
                         }
                         else {
                     
-                            Output.print( "?" + response.get( 0 ) );
                             Output.print( "Client sent wrong response" );
                     
                         }

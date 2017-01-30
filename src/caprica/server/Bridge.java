@@ -43,21 +43,21 @@ public class Bridge {
         
         connecting = true;
         
-        Socket connectingSocket = new Socket( inputServerIP , port );
+        Socket connectingSocket = new Socket( inputServerIP , port ); //Server accepts and immeaditly creates Connection object
         
-        connection = new Connection( connectingSocket , inputServerIP , encyptionKey , encypter );
+        connection = new Connection( connectingSocket , inputServerIP , encyptionKey , encypter ); //Output and input streams established
         
-        Output.print( "Connection succesful" );
-        
+        Output.print( "Connection succesful" ); //If we get here then the output and input streams were successfully established
+   
         Command response = connection.getLastCommand( 10 );
         
         if ( response != null ){
         
             Output.print( "Server sent response" );
-            
+           
             if ( response.get( 0 ).equals( CommunicationConstants.KNOCK_KNOCK.get( 0 ) ) ){
             
-                Output.print( "Knock knock accepted" );
+                Output.print( "Halo halo accepted" );
                 Output.print( "Sending accepted response" );
        
                 try {
@@ -71,21 +71,21 @@ public class Bridge {
                 }
                 catch( IOException e ){
                     
-                    Output.print( "Could not send accepted response" , e );
+                    Output.print( "Could not send accepted response, due to this connection failed" , e );
                     
                 }
                 
             }
             else {
                 
-                Output.print( "Server knock not accepted" );
+                Output.print( "Server halo not accepted, due to this connection failed" );
                 
             }
         
         }
         else {
             
-            Output.print( "Server did not send knock knock" );
+            Output.print( "Server did not say halo, due to this connection failed" );
             
         }
         

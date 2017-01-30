@@ -85,7 +85,7 @@ public class InformationBlock {
             }
             catch( Exception e ){}
             
-            if ( System.currentTimeMillis() - lastRead > 200 ){
+            if ( System.currentTimeMillis() - lastRead > 500 ){ //DING DING DING WILL BREAK SOMETIMES
                     
                 break;
                     
@@ -96,7 +96,7 @@ public class InformationBlock {
         blockSize = block.length();
         
         block = assembly.decypt( block );
-
+        
         //Construct message
         int endConstruct = 0;
         int length = block.length();
@@ -120,7 +120,7 @@ public class InformationBlock {
             message += block.charAt( i );
             
         }
- 
+  
     }
     
     public String getMessage(){

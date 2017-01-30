@@ -69,6 +69,17 @@ public class Connection {
 
     }
     
+    public void flush(){
+        
+        try {
+        
+            outputStream.flush();
+        
+        }
+        catch( IOException exception ){}
+        
+    }
+    
     public void setID( String id ){
         
         this.id = id;
@@ -232,7 +243,7 @@ public class Connection {
                 InformationBlock blockMessage = new InformationBlock( inputStream , assembly , encypter );
                
                 String decyptedMessage = blockMessage.getMessage();
-         
+                
                 lastCommand = new Command( decyptedMessage );
                
                 newMessage = true;

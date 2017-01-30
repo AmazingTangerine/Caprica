@@ -42,18 +42,33 @@ public class SystemFile {
     @Override
     public String toString(){
         
+        InputDataStream dataStream = null;
+        
         try {
             
-            InputDataStream dataStream = new InputDataStream( getStream() );
+            dataStream = new InputDataStream( getStream() );
             
             String data = dataStream.toString();
-
-            dataStream.close();
 
             return data;
             
         } 
         catch ( Exception exception ) {}
+        
+        try {
+            
+            if ( dataStream != null ){
+            
+                dataStream.close(); //Real bad if this fails
+            
+            }
+            
+        }
+        catch( IOException e ){
+            
+            Output.print( "Could not close file stream(bad)" , e );
+            
+        }
         
         return "";
         
@@ -85,7 +100,7 @@ public class SystemFile {
     
     public boolean delete(){
         
-        return file.delete();
+        return new File( this.getFilePath() ).delete();
         
     }
     
@@ -93,6 +108,7 @@ public class SystemFile {
         
         getFile().renameTo( new File( newPath ) );
         
+        file = new File( newPath );
         fileAddress = newPath.replace( "\\" , "/" );
         
     }
@@ -145,6 +161,41 @@ public class SystemFile {
         }
             
         return false;
+        
+    }
+    
+    public boolean safeWrite( String data , boolean append ){
+        
+        SystemFile tempFile = new SystemFile( this.getFilePath() + ".temp" );
+        
+        if ( tempFile.exists() ){ tempFile.delete(); }
+        
+        try {
+            
+            tempFile.create();
+
+            OutputDataStream outputStream = new OutputDataStream( new File( tempFile.getFilePath() ) );
+        
+            outputStream.write( data );
+        
+            outputStream.close();
+            
+            String oldPath = this.getFilePath();
+            
+            this.delete();
+            
+            tempFile.rename( oldPath );
+            
+        }
+        catch( Exception e ){
+            
+            tempFile.delete();
+            
+            return false;
+            
+        }
+        
+        return true;
         
     }
     

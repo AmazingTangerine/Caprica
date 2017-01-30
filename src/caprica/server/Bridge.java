@@ -2,6 +2,7 @@ package caprica.server;
 
 import caprica.datatypes.Config;
 import caprica.encyption.RSA;
+import caprica.system.Control;
 import caprica.system.Output;
 import java.io.IOException;
 import java.net.Socket;
@@ -36,7 +37,7 @@ public class Bridge {
         
     }
     
-    public void connect( String inputServerIP  , int port ) throws IOException {
+    public boolean connect( String inputServerIP  , int port ) throws IOException {
          
         Output.print( "Connecting to " + inputServerIP );
         
@@ -48,7 +49,7 @@ public class Bridge {
         
         Output.print( "Connection succesful" );
         
-        Command response = connection.getLastCommand( 2 );
+        Command response = connection.getLastCommand( 10 );
         
         if ( response != null ){
         
@@ -57,9 +58,23 @@ public class Bridge {
             if ( response.get( 0 ).equals( CommunicationConstants.KNOCK_KNOCK.get( 0 ) ) ){
             
                 Output.print( "Knock knock accepted" );
+                Output.print( "Sending accepted response" );
+       
+                try {
                 
-                connection.sendCommandSurpressed( new Command( CommunicationConstants.KNOCK_RESPONSE , "" ) );
+                    connection.sendCommand( new Command( CommunicationConstants.KNOCK_RESPONSE , CommunicationConstants.KNOCK_RESPONSE ) );
             
+                    Output.print( "Response sent" );
+                    
+                    return true;
+                    
+                }
+                catch( IOException e ){
+                    
+                    Output.print( "Could not send accepted response" , e );
+                    
+                }
+                
             }
             else {
                 
@@ -70,11 +85,13 @@ public class Bridge {
         }
         else {
             
-            Output.print( "Server did not respond to knock" );
+            Output.print( "Server did not send knock knock" );
             
         }
         
         connecting = false;
+        
+        return false;
         
     }
     

@@ -69,7 +69,7 @@ public class UploadManager {
             return true;
         
         }
-        catch( Exception e ){ //Could not send command
+        catch( IOException e ){ //Could not send command
             
             Output.print( "Could not send file transfer command" , e );
             
@@ -82,7 +82,7 @@ public class UploadManager {
     private boolean openSocket() {
 
         try {
-        
+
             socket = new Socket( connection.getIP() , PORT );
             
             return true;
@@ -136,6 +136,12 @@ public class UploadManager {
         
         Long elapsedTimeLong = System.currentTimeMillis() - startTime;
         Long elpasedSeconds = ( elapsedTimeLong / 1000L );
+        
+        if ( elpasedSeconds.intValue() == 0 ){
+            
+            return fileCount;
+            
+        }
         
         return fileCount / elpasedSeconds.intValue();
         
@@ -336,6 +342,8 @@ public class UploadManager {
         Output.print( "Creating file" );
         
         sendingFile = new SystemFile( retrieveFileName );
+        
+        if ( sendingFile.exists() ){ sendingFile.delete(); }
         
         return sendingFile.create();
         

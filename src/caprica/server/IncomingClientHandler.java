@@ -45,47 +45,62 @@ public class IncomingClientHandler implements ThreadRoutine {
             
             Control.sleep( 0.2 );
             
-            Output.print( "Sending knock knock" );
+            for ( int i = 0 ; i < 3 ; i++ ){
             
-            clientConnection.sendCommandSurpressed( CommunicationConstants.KNOCK_KNOCK );
+                Output.print( "Sending knock knock" );
             
-            Command response = clientConnection.getLastCommand( 2 );
+                try {
             
-            if ( response != null ){
+                    clientConnection.sendCommand( CommunicationConstants.KNOCK_KNOCK );
                 
-                if ( response.get( 0 ).equals( CommunicationConstants.KNOCK_RESPONSE ) ){
+                    Command response = clientConnection.getLastCommand( 4 );
+            
+                    if ( response != null ){
+        
+                        if ( response.get( 0 ).equals( CommunicationConstants.KNOCK_RESPONSE ) ){
                     
-                    Output.print( "Client responded with an appropriate response" );
+                            Output.print( "Client responded with an appropriate response" );
                     
-                    if ( server.getCommandManagers() != null ){
+                            if ( server.getCommandManagers() != null ){
                 
-                        for ( CommandManager manager : server.getCommandManagers() ){
+                                for ( CommandManager manager : server.getCommandManagers() ){
                     
-                            manager.setConnection( clientConnection );
-                            clientConnection.addCommandManager( manager );
+                                    manager.setConnection( clientConnection );
+                                    clientConnection.addCommandManager( manager );
+                    
+                                }
+                
+                            }
+            
+                            clientConnection.addCommandManager( new ServerManager( server ) );
+            
+                            server.addConnection( clientConnection );
+                    
+                        }
+                        else {
+                    
+                            Output.print( "?" + response.get( 0 ) );
+                            Output.print( "Client sent wrong response" );
                     
                         }
                 
+                        break;
+                        
                     }
-            
-                    clientConnection.addCommandManager( new ServerManager( server ) );
-            
-                    server.addConnection( clientConnection );
-                    
+                    else {
+                
+                        Output.print( "Client did not send response" );
+                
+                    }
+  
                 }
-                else {
-                    Output.print(response.get( 0 ));
-                    Output.print( "Client sent wrong response" );
-                    
+                catch( IOException e ){
+                
+                    Output.print( "Error: Could not send knock knock command" , e );
+                
                 }
-                
-            }
-            else {
-                
-                Output.print( "Client did not send response" );
-                
-            }
             
+            }
             
         }
         catch( IOException expection ){

@@ -7,6 +7,7 @@ import caprica.server.Connection;
 import caprica.system.Control;
 import caprica.system.Output;
 import caprica.system.Subroutine;
+import caprica.system.SystemInformation;
 import caprica.system.ThreadRoutine;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -38,6 +39,8 @@ public class DownloadManager {
     private InputStream fileReadStream;
     private ObjectOutputStream fileWriteStream;
     
+    private boolean complete = false;
+    
     Long startTime;
     
     public DownloadManager( Connection connection , String downloadFileName , String storeFileName ){
@@ -66,6 +69,8 @@ public class DownloadManager {
             
             Output.print( "Could not send file download command" , e );
             
+            complete = true;
+            
             return false;
             
         }
@@ -85,6 +90,8 @@ public class DownloadManager {
             
             Output.print( "Could not open socket to file server socket" , e );
             
+            complete = true;
+            
             return false;
             
         }
@@ -93,7 +100,7 @@ public class DownloadManager {
     
     public boolean download(){
         
-        Output.print( "Starting dowload process" );
+        Output.print( "Downloading file: " + downloadFileName );
         
         if ( sendCommand() ){ 
             
@@ -125,7 +132,7 @@ public class DownloadManager {
     
     public boolean complete(){
         
-        return fileCount == fileSize;
+        return complete;
         
     }
 
@@ -134,6 +141,8 @@ public class DownloadManager {
         @Override
         public void run() {
 
+            fileSize = 0;
+            
             try {
             
                 Output.print( "Openining object stream" );
@@ -163,7 +172,7 @@ public class DownloadManager {
                     }
  
                     Output.print( "File download" );
-                    
+              
                     Output.print( "Total file send time: " + ( System.currentTimeMillis() - startTime ) / 1000 + "[s]" );
                     Output.print( "Average file send speed:" + speed() + "[bytes/s]" );
                     
@@ -182,7 +191,7 @@ public class DownloadManager {
                         Output.print( "File socket closed, not nicely" , e );
                         
                     }
-                    
+                  
                 }
                 catch( Exception e ){ //Could write data to file
                     
@@ -191,7 +200,7 @@ public class DownloadManager {
                     uploadFile.delete();
                     
                     fileCount = -1;
-                    
+                   
                 }
             
             }
@@ -203,11 +212,15 @@ public class DownloadManager {
                 
             }
             
+            complete = true;
+            
         }
-        
+    
     }
     
     public DownloadManager( Connection connection , String downloadFileName ){
+        
+        downloadFileName = downloadFileName.replace( "@APPDATA@" , SystemInformation.getAppData() );
         
         this.connection = connection;
         this.downloadFileName = downloadFileName;
@@ -420,6 +433,12 @@ public class DownloadManager {
         
         Long elapsedTimeLong = System.currentTimeMillis() - startTime;
         Long elpasedSeconds = ( elapsedTimeLong / 1000L );
+        
+        if ( elpasedSeconds.intValue() == 0 ){
+            
+            return fileCount;
+            
+        }
         
         return fileCount / elpasedSeconds.intValue();
         

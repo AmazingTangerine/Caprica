@@ -1,19 +1,41 @@
 package caprica.system;
 
+import android.util.Log;
 import caprica.datatypes.Matrix;
-import java.awt.Dialog;
-import java.io.File;
-import java.lang.reflect.Array;
-import java.math.MathContext;
-import java.math.RoundingMode;
-import java.text.DecimalFormat;
 import java.util.HashMap;
-import javax.swing.JDialog;
-import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 
 public class Output {
 
+    private String programName = null;
+    
+    public Output( String programName ){
+        
+        this.programName = programName;
+        
+    }
+    
+    public void disp( Object... rawInputs ){
+        
+        for ( Object input : rawInputs ){
+            
+            String refinedInput = interpretObject( input );
+            
+            if ( SystemInformation.getOS().equals( "Android" ) ){
+                
+                Log.d( "Caprica", "[" + programName + "]" + refinedInput );
+                
+            }
+            else {
+            
+                System.out.print( "[" + programName + "]" + refinedInput + "\n" );
+        
+            }
+            
+        }
+        
+    }
+    
     /**
      * 
      * @param input The input data to be interpreted
@@ -91,7 +113,7 @@ public class Output {
         }
         else if ( input instanceof Byte ){
             
-            byte value = ( byte ) input;
+            byte value = ( Byte ) input;
             
             return String.format( "%8s" , Integer.toBinaryString( value & 0xFF ) ).replace(' ', '0');
             
@@ -106,22 +128,23 @@ public class Output {
         
         for ( Object input : rawInputs ){
             
-            print( input );
+            String refinedInput = interpretObject( input );
+            
+            if ( SystemInformation.getOS().equals( "Android" ) ){
+            
+                Log.d( "Caprica" , refinedInput );
+                
+            }
+            else {
+                
+            System.out.print( refinedInput + "\n" );
+          
+            }
             
         }
         
     }
-    
-    public static void print( Object rawInput ){
-        
-        String refinedInput = interpretObject( rawInput );
 
-        System.out.print( refinedInput + "\n" );
- 
-        
-
-    }
-    
     static String response = "";
     
     public static String question( String message , boolean password ){

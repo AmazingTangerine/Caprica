@@ -1,10 +1,13 @@
 package caprica.system;
 
+import android.content.ContextWrapper;
 import caprica.datatypes.ConsoleTable;
 import caprica.datatypes.SystemFile;
 import caprica.datatypes.Vector;
 import java.awt.Toolkit;
 import java.io.File;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -106,6 +109,15 @@ public class SystemInformation {
             return "Windows";
             
         }
+        else {
+            
+            if ( System.getProperty( "java.vm.vendor" ).equals( "The Android Project" ) ){
+                
+                return "Android";
+                
+            }
+            
+        }
         
         return "Linux";
         
@@ -120,6 +132,11 @@ public class SystemInformation {
             appData = System.getenv( "APPDATA" ).replace( "\\" , "/" ) + "/Caprica/";
             
         } 
+        else if ( getOS().equals( "Android" ) ){
+            
+            appData = System.getProperty( "user.dir" ) + "/Caprica/";
+            
+        }
    
         SystemFile appFolder = new SystemFile( appData );
         
@@ -135,25 +152,38 @@ public class SystemInformation {
     
     public static String getComputerName(){
         
-  
-            Map<String, String> env = System.getenv();
-        
-            if ( env.containsKey( "COMPUTERNAME" ) ){
-        
-                return env.get("COMPUTERNAME");
-        
-            }
-            else if ( env.containsKey( "HOSTNAME" ) ){
-        
-                return env.get("HOSTNAME");
-        
-            }
-        
-            else {
+        if ( getOS().equals( "Android" ) ){
             
-                return "Unknown";
+            return android.os.Build.MODEL;
+            
+        }
         
+        Map<String, String> env = System.getenv();
+        
+        if ( env.containsKey( "COMPUTERNAME" ) ){
+        
+            return env.get( "COMPUTERNAME" );
+        
+        }
+        else if ( env.containsKey( "HOSTNAME" ) ){
+        
+            return env.get( "HOSTNAME" );
+        
+        }
+        else {
+            
+            /** This method fucks up if you use a VPN
+            try { 
+                
+                InetAddress address = InetAddress.getLocalHost();
+                return address.getHostName().trim();
+                
             }
+            catch( UnknownHostException e ){} */
+            
+            return Control.exec( "hostname" , true ).trim();
+        
+        }
         
         
     

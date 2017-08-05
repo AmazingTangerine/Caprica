@@ -1,11 +1,13 @@
 package caprica.datatypes;
 
+import caprica.system.Output;
 import java.util.HashMap;
 
 public class Config {
 
     private HashMap< String , String > data = new HashMap<>();
     private SystemFile configFile;
+    private String newLine = "\n";
     
     public Config( String configFile ){
         
@@ -17,22 +19,25 @@ public class Config {
         
         this.configFile = configFile;
         
-        String rawData = configFile.toString();
-        String[] lines = rawData.split( "\n" );
+        if ( configFile.exists() ){
         
-        for ( String line : lines ){
+            String rawData = configFile.toString();
+       
+            String[] lines = rawData.split( newLine );
         
-            line = line.replace( "" + ( char ) 13 , "" );
-            
-            if ( line.contains( "=" ) ){
+            for ( String line : lines ){
                 
-                String key = line.split( "=" )[ 0 ];
-                String value = line.split( "=" )[ 1 ];
+                if ( line.contains( "=" ) ){
+                    
+                    String key = line.split( "=" )[ 0 ];
+                    String value = line.split( "=" )[ 1 ];
 
-                data.put( key , value );
+                    data.put( key , value );
                 
-            }
+                }
             
+            }
+
         }
         
     }
@@ -44,50 +49,11 @@ public class Config {
     }
     
     public void put( String keyName , String keyValue ){
-        
-        String fileData = "";
 
-        if ( data.containsKey( keyName ) ){
-
-            for ( String keyNames : data.keySet() ){
-                
-                if ( keyNames.equals( keyName ) ){
-                    
-                    fileData += keyName + "=" + keyValue + "\n";
-                    
-                }
-                else {
-                    
-                    fileData += keyNames + "=" + data.get( keyNames ) + "\n";
-                    
-                }
-                
-            }
+        data.put( keyName , keyValue );
         
-        }
-        else {
-            
-            data.put( keyName , keyValue );
-            
-            for ( String keyNames : data.keySet() ){
-                
-                fileData += keyNames + "=" + data.get( keyNames ) + "\n";
-    
-            }
-            
-        }
-        
-        try {
-        
-            configFile.write( fileData , false );
-        
-        }
-        catch( Exception e ){
-
-            //Output.log( new Report( "Could not update config file" , e ) , "file" );
-            
-        }
-        
+        save();
+  
     }
     
     public String get( String keyName ){
@@ -99,6 +65,22 @@ public class Config {
         }
         
         return "";
+        
+    }
+    
+    private void save(){ //Saves the file
+        
+        String fileData = "";
+
+        for ( String keyName : data.keySet() ){
+ 
+            fileData += keyName + "=" + data.get( keyName ) + newLine;
+            
+        }
+        
+        fileData = StringUtilities.snipLast( fileData );
+
+        configFile.write( fileData , false );
         
     }
     

@@ -17,6 +17,8 @@ import java.util.zip.ZipInputStream;
 
 public class SystemFile {
     
+    public static String[] illegals = new String[]{ "[" , "]" , "?" , "<" , ">" , "*" , "|" , "(" , ")" };
+    
     private String fileAddress;
     private File file;
     
@@ -30,6 +32,12 @@ public class SystemFile {
     public SystemFile( File inputFile ){
         
         this( inputFile.getPath() );
+        
+    }
+    
+    public String getName(){
+        
+        return this.getFilePath().replace( this.getFolder() , "" ).replace( this.getFileType() , "" ).replace( "." , "" );
         
     }
 
@@ -53,7 +61,11 @@ public class SystemFile {
             return data;
             
         } 
-        catch ( Exception exception ) {}
+        catch ( FileNotFoundException exception ) {
+        
+            //Output.print( "Could not file.toString() since file DNE" , exception );
+            
+        }
         
         try {
             
@@ -100,7 +112,62 @@ public class SystemFile {
     
     public boolean delete(){
         
-        return new File( this.getFilePath() ).delete();
+        if ( this.isFolder() ){
+        
+            boolean successfulDeletion = true;
+            boolean attempt;
+            
+            ArrayList< SystemFile > emptyFolders = new ArrayList<>();
+            
+            for ( SystemFile subFile : this.listWholeContents() ){
+                
+                if ( subFile.isFolder() ){
+                    
+                    emptyFolders.add( subFile );
+                    
+                }
+                else {
+                    
+                    attempt = subFile.delete();
+                    
+                    if ( !attempt ){
+                        
+                        successfulDeletion = false;
+                        
+                    }
+                    
+                }
+                
+            }
+            
+            for ( SystemFile emptyFolder : emptyFolders ){
+                
+                attempt = new File( emptyFolder.getFilePath() ).delete();
+                
+                if ( !attempt ){
+                        
+                    successfulDeletion = false;
+                        
+                }
+                
+            }
+            
+            attempt = new File( this.getFilePath() ).delete();
+                
+            if ( !attempt ){
+                        
+                successfulDeletion = false;
+                        
+            }
+            
+            return successfulDeletion;
+            
+        }
+        else {
+           
+            return new File( this.getFilePath() ).delete();
+            
+        }
         
     }
     
@@ -135,36 +202,49 @@ public class SystemFile {
     
     public boolean create() {
        
-        if ( getFilePath().contains( "." ) ){
-            
-            try {
-                    
-                return file.createNewFile();
-                    
-            }
-            catch( Exception ePrime ){}
-            
-        }
-        else {
+        String path = this.getFilePath();
+        String compile = "";
         
-            if ( file.mkdirs() ){
+        for ( String seperate : path.split( "/" ) ){
+            
+            compile += seperate;
+            
+            int length = 0;
+            
+            if ( compile.contains( "." ) ){
                 
+                String last = compile.split( "\\." )[ compile.split( "\\." ).length - 1 ];
+                length = last.length();
+                
+            }
+            
+            if ( length != 3 && length != 4 ){
+           
+                compile += "/";
+                
+                new File( compile ).mkdirs();
+                
+            }
+            else {
+
                 try {
                     
-                    return file.createNewFile();
+                    file.createNewFile();
+                    
+                    return true;
                     
                 }
                 catch( Exception ePrime ){}
                 
             }
-        
-        }
             
-        return false;
+        }
+   
+        return new SystemFile( fileAddress ).exists();
         
     }
     
-    public boolean safeWrite( String data , boolean append ){
+    public boolean write( String data , boolean append ){
         
         SystemFile tempFile = new SystemFile( this.getFilePath() + ".temp" );
         
@@ -187,8 +267,8 @@ public class SystemFile {
             tempFile.rename( oldPath );
             
         }
-        catch( Exception e ){
-            
+        catch( IOException e ){
+    
             tempFile.delete();
             
             return false;
@@ -199,7 +279,7 @@ public class SystemFile {
         
     }
     
-    public void write( String data , boolean append ) throws IOException {
+    private void traditionalWrite( String data , boolean append ) throws IOException {
         
         if ( exists() && !append ){
             
@@ -224,7 +304,7 @@ public class SystemFile {
 
     public void writeStream( InputDataStream stream , boolean append ) throws IOException {
         
-        write( stream.toString() , append );
+        traditionalWrite( stream.toString() , append );
  
     }
     
@@ -295,16 +375,20 @@ public class SystemFile {
         File[] files = getFile().listFiles();
         ArrayList< SystemFile > globalFiles = new ArrayList<>();
    
-        for ( File file : files ){
+        if ( files != null ){
+        
+            for ( File file : files ){
             
-            SystemFile globalFile = new SystemFile( file );
+                SystemFile globalFile = new SystemFile( file );
             
-            if ( !globalFile.isSymbolicLink() ){
+                if ( !globalFile.isSymbolicLink() ){
                 
-                globalFiles.add( globalFile );
+                    globalFiles.add( globalFile );
                 
-            }
+                }
  
+            }
+        
         }
         
         return globalFiles;
@@ -360,8 +444,51 @@ public class SystemFile {
         
         if ( !copyFile.exists() ){ copyFile.create(); }
         
-        Files.copy( this.getFile().toPath() , copyFile.getFile().toPath() , StandardCopyOption.REPLACE_EXISTING );
+        if ( this.isFolder() ){
         
+            for ( SystemFile subCopyRaw : this.listWholeContents() ){
+                
+                SystemFile subCopy = new SystemFile( subCopyRaw.getFilePath().replace( this.getFilePath() , copyFile.getFilePath() ) );
+                
+                String path = subCopy.getFilePath();
+                
+                for ( String illegal : illegals ){
+                    
+                    path = path.replace( illegal , "" );
+                    
+                }
+                
+                subCopy = new SystemFile( path );
+                
+                if ( !subCopy.exists() ){ subCopy.create(); }
+        
+                //Output.print( "Copying " + subCopyRaw.getFilePath() + " to " + subCopy.getFilePath() );
+                
+                Files.copy( subCopyRaw.getFile().toPath() , subCopy.getFile().toPath() , StandardCopyOption.REPLACE_EXISTING );
+                
+            }
+            
+        }
+        else {
+
+            String path = copyFile.getFilePath();
+                
+            for ( String illegal : illegals ){
+                    
+                path = path.replace( illegal , "" );
+                    
+            }
+            
+            copyFile = new SystemFile( path );
+            
+            if ( !copyFile.exists() ){ copyFile.create(); }
+            
+            //Output.print( "Copying file " + this.getFilePath() + " to " + copyFile.getFilePath() );
+            
+            Files.copy( this.getFile().toPath() , copyFile.getFile().toPath() , StandardCopyOption.REPLACE_EXISTING );
+            
+        }
+
     }
     
     public boolean unZip() throws FileNotFoundException, IOException {

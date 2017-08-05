@@ -1,13 +1,16 @@
 package caprica.datatypes;
 import caprica.datatypes.Num;
 import static caprica.system.CharacterConstants.END_OF_LINE;
+import caprica.system.Output;
+import java.io.BufferedInputStream;
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
-import java.io.Reader;
 
 public class InputDataStream {
     
@@ -57,22 +60,45 @@ public class InputDataStream {
 
         try {
             
-            int line;
-            String compound = "";
-   
-            while ( ( line = inputStream.read() ) != -1 ) {
+            int count = inputStream.available();
+            
+            if ( count > 0 ){
+            
+                Long start = System.currentTimeMillis();
+  
+                BufferedReader reader = new BufferedReader( new InputStreamReader( inputStream ) );
 
-                if ( line == END_OF_LINE ){
+                StringBuilder builder = new StringBuilder();
+                
+                String line;
+                
+                while ( ( line = reader.readLine() ) != null ){
                     
-                    break;
+                    builder.append( line );
+                    builder.append( "\n" );
                     
                 }
- 
-                compound = compound + "" + ( char ) line;
-                     
+                
+                String compound = builder.toString();
+                
+                Long difference = System.currentTimeMillis() - start;
+                    
+                if ( difference == 0 ){
+                        
+                    difference = 1L; 
+                        
+                }
+                    
+                double speed = ( count / difference );
+
+                //Output.print( "Stream read speed was " + speed + "kb/s" );
+                //Output.print( "Trimming new string" );
+                
+                reader.close();
+         
+                return compound;
+      
             }
-            
-            return compound.trim();
             
         }
         catch ( Exception e ){}

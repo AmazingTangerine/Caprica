@@ -3,11 +3,10 @@ package caprica.server;
 
 import caprica.datatypes.Config;
 import caprica.encyption.RSA;
+import caprica.internet.NetworkInformation;
 import caprica.system.Output;
 import caprica.system.Subroutine;
-import java.io.File;
 import java.io.IOException;
-import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.util.ArrayList;
 
@@ -20,15 +19,14 @@ public class Server {
     
     private int port;
  
-    private String encyptionKey;
-    private RSA encypter;
+    private RSA encypter = null;
     
-    private CommandManager[] managers = null;
+    private String name;
     
-    public Server( int port , Config config ) {
+    public Server( String name , int port ) {
         
+        this.name = name;
         this.port = port;
-        this.encyptionKey = config.get( "key" );
  
     }
     
@@ -38,31 +36,15 @@ public class Server {
         
     }
     
-    public void addCommandManagers( CommandManager[] managers ){
-        
-        this.managers = managers;
-        
-    }
-    
-    public CommandManager[] getCommandManagers(){
-        
-        return managers;
-        
-    }
-    
     public void start() throws IOException{
+        
+        new Output( name ).disp( "Starting server with IP " + NetworkInformation.externalIP() + " on port " + port );
         
         commandServer = new Subroutine( new IncomingClientHandler( new ServerSocket( port ) , this ) );
         commandServer.start();
         
     }
-   
-    public String getEncyptionKey(){
 
-        return encyptionKey;
-        
-    }
-    
     public RSA getEncypter(){
         
         return encypter;
@@ -78,6 +60,12 @@ public class Server {
     public void addConnection( Connection connection ){
         
         connections.add( connection );
+        
+    }
+    
+    public void removeConnection( Connection connection ){
+        
+        connections.remove( connection );
         
     }
     

@@ -1,2 +1,2 @@
-java -jar dist/Caprica.jar terminal
+java -jar dist/Caprica.jar
 pause

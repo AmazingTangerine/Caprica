@@ -2,33 +2,270 @@ package caprica.server;
 
 import caprica.datatypes.Config;
 import caprica.encyption.RSA;
+import static caprica.server.CommunicationConstants.KNOCK_OK;
+import static caprica.server.CommunicationConstants.KNOCK_SEND;
 import caprica.system.Control;
 import caprica.system.Output;
+import caprica.system.SystemInformation;
 import java.io.IOException;
 import java.net.Socket;
+import java.util.ArrayList;
 
 public class Bridge {
 
-    private String serverIP;
-    
-    private boolean online = true;
-    private boolean connecting = false;
-
-    private Bridge self;
-    
     private Connection connection;
     
-    private String encyptionKey;
+    private String serverIP;
+    private String programName;
     
-    private RSA encypter;
+    private boolean alive = false;
     
-    public Bridge( Config config ){
+    private Output output = new Output( "Bridge" );
+    
+    private RSA encypter = null;
+    
+    private ArrayList< CommandManager > commandManagers;
+    
+    public Bridge(){
         
-        this.self = this;
-        this.encyptionKey = config.get( "key" );
+        commandManagers = new ArrayList<>();
+        
+    }
+    
+    public void addCommandManager( CommandManager... managers ){
+        
+        for ( CommandManager manager : managers ){
+            
+            manager.setBridge( this );
+            commandManagers.add( manager );
+            
+        }
+        
+    }
+    
+    public boolean sendCommandSuppressed( Command command ){
+        
+        return sendSuppressedCommand( command );
+        
+    }
+    
+    public boolean sendSuppressedCommand( Command command ){
+        
+        try {
+            
+            return sendCommand( command );
+            
+        }
+        catch( Exception e ){}
+        
+        return false;
+        
+    }
+    
+    public boolean sendCommand( Command command ) throws Exception{
+  
+        if ( command.toString().contains( "$" ) ){
+        
+            if ( command.getToComputer().equals( SystemInformation.getComputerName() ) ){ //Own computer do not need to send
+            
+                for ( CommandManager manager : commandManagers ){
+                
+                    if ( command.getToProgram().equals( manager.getName() ) ){
+                    
+                        manager.Manage( command );
+                    
+                        return true;
+                    
+                    }
+                
+                }
+            
+            }
+            else {
+            
+                if ( connection != null ){
+  
+                    if ( connection.getAlive() ){
+             
+                        return connection.sendCommand( command );
+                    
+                    }
+                    else {
+                    
+                        throw new Exception( "Bridge connection is not alive" );
+                    
+                    }
+                
+                }
+                else {
+                
+                    throw new Exception( "Bridge connection is null" );
+                
+                }
+            
+            }
+        
+        }
+        
+        return false;
+        
+    }
+    
+    public boolean sendFile( Command command ) throws Exception{
+  
+        if ( command.toString().contains( "$" ) ){
+        
+            if ( command.getToComputer().equals( SystemInformation.getComputerName() ) ){ //Own computer do not need to send
+            
+                for ( CommandManager manager : commandManagers ){
+                
+                    if ( command.getToProgram().equals( manager.getName() ) ){
+                    
+                        manager.Manage( command );
+                    
+                        return true;
+                    
+                    }
+                
+                }
+            
+            }
+            else {
+            
+                if ( connection != null ){
+  
+                    if ( connection.getAlive() ){
+             
+                        return connection.sendCommand( command );
+                    
+                    }
+                    else {
+                    
+                        throw new Exception( "Bridge connection is not alive" );
+                    
+                    }
+                
+                }
+                else {
+                
+                    throw new Exception( "Bridge connection is null" );
+                
+                }
+            
+            }
+        
+        }
+        
+        return false;
+        
+    }
+    
+    public boolean connect( String inputServerIP , String ID , int port ) throws IOException {
+         
+        alive = false;
+        
+        output.disp( "Connecting to " + inputServerIP + " on port " + port );
+      
+        Socket connectingSocket = new Socket( inputServerIP , port ); //Server accepts and immeaditly creates Connection object
+        
+        if ( encypter != null ){
+        
+            connection = new Connection( connectingSocket , inputServerIP , encypter ); //Consider making a null check in connection construction
+            
+        }
+        else {
+            
+            connection = new Connection( connectingSocket , inputServerIP ); 
+        
+        }
+        
+        connection.setBridge( this );
+        
+        output.disp( "Connection streams established" ); //If we get here then the output and input streams were successfully established
+        output.disp( "Sending knock-knock" );
+        
+        try {
+            
+            connection.sendCommand( new Command( "*" , "*" , -1 , KNOCK_SEND ) );
+            
+            output.disp( "Knock-knock sent" );
+            
+            Command response = connection.getLastCommand( 15 );
+            
+            if ( response != null ){
  
-        online = false;
+                if ( response.getParameters()[ 0 ].equals( KNOCK_OK ) ){ //Potential fuck up
+                    
+                    output.disp( "Server says knock is ok" );
+                    output.disp( "Sending ID" );
+                   
+                    try {
+                    
+                        connection.sendCommand( new Command( "*" , "*" ,  -1 , SystemInformation.getComputerName() ) );
+
+                        connection.setConnectionDetails( ID , SystemInformation.getComputerName() );
+                    
+                        alive = true;
+                        return true;
+                    
+                    }
+                    catch( Exception e ){
+                        
+                        output.disp( "Error: Could not send ID" , e );
+                    
+                        connection.close();
+                        
+                    }
+                    
+                }
+                else {
+                    
+                    output.disp( "Error: Server did not respond properly" );
+                    connection.close();
+                    
+                }
+                
+            }
+            else {
+                
+                output.disp( "Error: Server did not send response" );
+                connection.close();
+                
+            }
+            
+        }
+        catch( IOException eKnockSend ){
+            
+            output.disp( "Error: Could not send knock knock" , eKnockSend );
+            
+        }
         
+        alive = false;
+        
+        return false;
+        
+    }
+
+    public String getStoreValue( String key ){
+        
+        if ( alive ){
+            
+            return connection.getStoreValue( key );
+            
+        }
+        
+        return "null";
+        
+    }
+    
+    public void setStoreValue( String key , String value ){
+        
+        if ( alive ){
+            
+            connection.setStoreValue( key , value );
+            
+        }
+       
     }
     
     public void setEncypter( RSA rsa ){
@@ -37,73 +274,9 @@ public class Bridge {
         
     }
     
-    public boolean connect( String inputServerIP  , int port ) throws IOException {
-         
-        Output.print( "Connecting to " + inputServerIP );
+    public String getFrom(){
         
-        connecting = true;
-        
-        Socket connectingSocket = new Socket( inputServerIP , port ); //Server accepts and immeaditly creates Connection object
-        
-        connection = new Connection( connectingSocket , inputServerIP , encyptionKey , encypter ); //Output and input streams established
-        
-        Output.print( "Connection succesful" ); //If we get here then the output and input streams were successfully established
-   
-        Command response = connection.getLastCommand( 10 );
-        
-        if ( response != null ){
-        
-            Output.print( "Server sent response" );
-           
-            if ( response.get( 0 ).equals( CommunicationConstants.KNOCK_KNOCK.get( 0 ) ) ){
-            
-                Output.print( "Halo halo accepted" );
-                Output.print( "Sending accepted response" );
-       
-                try {
-                
-                    connection.sendCommand( new Command( CommunicationConstants.KNOCK_RESPONSE , CommunicationConstants.KNOCK_RESPONSE ) );
-            
-                    Output.print( "Response sent" );
-                    
-                    return true;
-                    
-                }
-                catch( IOException e ){
-                    
-                    Output.print( "Could not send accepted response, due to this connection failed" , e );
-                    
-                }
-                
-            }
-            else {
-                
-                Output.print( "Server halo not accepted, due to this connection failed" );
-                
-            }
-        
-        }
-        else {
-            
-            Output.print( "Server did not say halo, due to this connection failed" );
-            
-        }
-        
-        connecting = false;
-        
-        return false;
-        
-    }
-    
-    public Connection getConnection(){
-        
-        return connection;
-        
-    }
-    
-    public boolean isConnecting(){
-        
-        return connecting;
+        return SystemInformation.getComputerName() + "$" + programName;
         
     }
     
@@ -112,12 +285,12 @@ public class Bridge {
         return serverIP;
         
     }
-    
+
     public boolean isAlive(){
         
-        return online;
+        return alive;
         
     }
-
+    
 }
 

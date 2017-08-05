@@ -1,43 +1,128 @@
 package caprica.server;
 
-import caprica.system.CharacterConstants;
-import static caprica.system.CharacterConstants.COMMAND_INFO_SPLIT;
-import static caprica.system.CharacterConstants.COMMAND_REGEX;
-import static caprica.system.CharacterConstants.COMMAND_SPLIT;
+import static caprica.server.CommunicationConstants.COMMAND_DILEMETER;
 import caprica.system.Output;
 
 public class Command {
     
-    private String[] subCommands = null;
-    private String query = "0";
-    private boolean hold = false;
-
-    /**
-     * Acceptable range is from 39-126
-     * @param subCommands Either entry from constructed command or listed entry
-     */
-    public Command( String... subCommands ){
-
-        if ( subCommands.length == 1 ){ //From sent command
+    //To
+    //;
+    //From
+    //;
+    //Function #
+    //;
+    //Parameters
+    //;
+    //END
+    
+    private String stringCommand = null;
+    private int functionNumber = -1;
+    private String[] parameters = null;
+    private String to = null;
+    private String from = null;
+    private static final int offset = 0;
+    
+    public String getTo(){
         
-            String fromString = subCommands[ 0 ];
+        return to;
+        
+    }
+    
+    public String getToComputer(){
+        
+        return to.split( "\\$" )[ 0 ];
+        
+    }
+    
+    public String getToProgram(){
+        
+        return to.split( "\\$" )[ 1 ];
+        
+    }
+    
+    public String getFrom(){
+        
+        return from;
+        
+    }
+    
+    public String getFromProgram(){
+        
+        return from.split( "\\$" )[ 1 ];
+        
+    }
+    
+    public String getFromComputer(){
+        
+        return from.split( "\\$" )[ 0 ];
+        
+    }
+    
+    public String[] getParameters(){
+        
+        return parameters;
+        
+    }
+    
+    public int getFunctionNumber(){
+        
+        return functionNumber;
+        
+    }
+    
+    public Command( String command ){
 
-            if ( fromString.contains( COMMAND_SPLIT ) && fromString.contains( COMMAND_INFO_SPLIT ) && fromString.contains( COMMAND_REGEX )  ){ //Makes sure it has the command structure
+        stringCommand = command;
+
+        if ( command.contains( "" + COMMAND_DILEMETER ) ){
             
-                for ( String commandInfo : fromString.split( COMMAND_INFO_SPLIT ) ){
-               
-                    String key = commandInfo.split( COMMAND_REGEX )[ 0 ];
-                    String value = commandInfo.split( COMMAND_REGEX )[ 1 ];
-                
-                    if ( key.equals( "command" ) ){
+            if ( command.split( "" + COMMAND_DILEMETER ).length > 2 ){
+         
+                String[] datum = command.split( "" + COMMAND_DILEMETER );
+       
+                to = datum[ offset ];
+                from = datum[ offset + 1 ];
+                functionNumber = Integer.parseInt( datum[ offset + 2 ] );
+            
+                if ( functionNumber == 13 ){
                     
-                        this.subCommands = value.split( COMMAND_SPLIT );
+                    parameters = new String[ 2 ];
+                    parameters[ 0 ] = datum[ offset + 3 ];
                     
+                    String fileConstruction = "";
+                    
+                    for ( int i = offset + 3 + 1 ; i < datum.length ; i++ ){
+                        
+                        fileConstruction += datum[ i ];
+                        
+                        if ( i != datum.length - 1 ){
+                            
+                            fileConstruction += COMMAND_DILEMETER;
+                            
+                        }
+                        
                     }
-                    else if ( key.equals( "query" ) ){
                     
-                        query = value;
+                    parameters[ 1 ] = fileConstruction;
                     
+                }
+                else {
+                
+                    if ( datum.length == 4 + offset ){
+            
+                        parameters = null;
+                
+                    }
+                    else {
+                
+                        parameters = new String[ datum.length - ( 4 + offset ) ];
+  
+                        for ( int i = 3 + offset ; i < datum.length - 1 ; i++ ){
+    
+                            parameters[ i - ( 3 + offset ) ] = datum[ i ];
+                
+                        }
+            
                     }
                 
                 }
@@ -45,106 +130,38 @@ public class Command {
             }
             
         }
-        else{
-            
-            this.subCommands = subCommands;
         
-        }
-            
     }
     
-    public String get( int index ){
-        
-        if ( subCommands != null ){
-        
-            if ( index < subCommands.length ){
-            
-                return subCommands[ index ];
-            
-            }
-        
-        }
-        
-        return "";
-        
-    }
+    public Command( String to , String from , int functionNumber , String... parameters ){
 
-    public String getQuery(){
+        this.functionNumber = functionNumber;
+        this.parameters = parameters;
         
-        return query;
+        this.to = to;
+        this.from = from;
         
-    }
-    
-    public void setQuery( String referenceName ){
+        stringCommand = to + COMMAND_DILEMETER + from + COMMAND_DILEMETER + functionNumber + COMMAND_DILEMETER;
         
-        query = referenceName;
-        
-    }
-    
-    public void hold(){
-        
-        hold = true;
-        
-    }
-    
-    public boolean held(){
-        
-        return hold;
-             
-    }
-    
-    public String laymen(){
-        
-        String info = "";
-        
-        if ( subCommands != null ){
-
-            String base = "command" + COMMAND_REGEX;
-        
-            for ( String command : subCommands ){
+        for ( String parameter : parameters ){
             
-                base += command + COMMAND_SPLIT;
+            stringCommand += parameter + COMMAND_DILEMETER;
             
-            }
-        
-            base = base.substring( 0 , base.length() ); //Removes last command split
-            
-            info = "Command: " + base;
-            
-            if ( !query.equals( "null" ) ){
-                
-                info += "\n" + "Query: " + query;
-            }
-            
-            return info;
-        
         }
-
-        return "null";
+        
+        stringCommand += "END";
         
     }
     
     @Override
     public String toString(){
         
-        if ( subCommands != null ){
-
-            String base = "command" + COMMAND_REGEX;
+        if ( stringCommand != null ){
         
-            for ( String command : subCommands ){
+            return stringCommand;
             
-                base += command + COMMAND_SPLIT;
-            
-            }
-        
-            base = base.substring( 0 , base.length() - 1 ); //Removes last command split
-        
-            base += COMMAND_INFO_SPLIT + "query" + COMMAND_REGEX + query;
-        
-            return base;
-        
         }
-
+            
         return "null";
         
     }

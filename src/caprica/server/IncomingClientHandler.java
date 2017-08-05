@@ -1,10 +1,7 @@
 package caprica.server;
 
-import caprica.datatypes.Config;
-import caprica.datatypes.SystemFile;
-import caprica.datatypes.InputDataStream;
-import caprica.datatypes.OutputDataStream;
-import caprica.encyption.BlockAssembly;
+import static caprica.server.CommunicationConstants.KNOCK_OK;
+import static caprica.server.CommunicationConstants.KNOCK_SEND;
 import caprica.system.Control;
 import caprica.system.Output;
 import caprica.system.SystemInformation;
@@ -21,10 +18,19 @@ public class IncomingClientHandler implements ThreadRoutine {
     ServerSocket serverSocket;
     Server server;
     
+    public Output output;
+    
     public IncomingClientHandler( ServerSocket inputSocket , Server inputServer ){
             
         serverSocket = inputSocket;
         server = inputServer;
+        output = new Output( "Server");
+        
+    }
+    
+    public void cancel( Connection clientConnection ){
+        
+        clientConnection.close();
         
     }
         
@@ -35,76 +41,86 @@ public class IncomingClientHandler implements ThreadRoutine {
         
         try {
                 
+            output.disp( "Waiting for socket acception" );
+            
             inboundSocket = serverSocket.accept();
+            
+            output.disp( "Socket accepted" );
      
             String IP = inboundSocket.getInetAddress().getHostAddress();
                         
-            Output.print( "Inbound connection from " + IP );
+            output.disp( "Inbound connection from " + IP );
+       
+            Connection clientConnection = new Connection( inboundSocket , IP , server.getEncypter() ); //Sets up connection class, encytion ect
+            clientConnection.setServer( server );
             
-            Connection clientConnection = new Connection( inboundSocket , IP , server.getEncyptionKey() , server.getEncypter() ); //Sets up connection class, encytion ect
+            Command response = clientConnection.getLastCommand( 10 );
             
-            Control.sleep( 0.5 );
-            
-            for ( int i = 0 ; i < 3 ; i++ ){
-            
-                Output.print( "Sending knock knock" );
-            
-                try {
-            
-                    clientConnection.sendCommand( CommunicationConstants.KNOCK_KNOCK );
+            if ( response != null ){
+ 
+                if ( response.getParameters()[ 0 ].equals( KNOCK_SEND ) ){ //Potential fuck up
+                    
+                    output.disp( "Client sent knock-knock" );
+                    output.disp( "Sending ok response" );
+                    
+                    try {
                 
-                    Command response = clientConnection.getLastCommand( 6 ); //3 seconds
-            
-                    if ( response != null ){
-        
-                        if ( response.get( 0 ).equals( CommunicationConstants.KNOCK_RESPONSE ) ){
-                    
-                            Output.print( "Client responded with an appropriate response" );
-                    
-                            if ( server.getCommandManagers() != null ){
-                
-                                for ( CommandManager manager : server.getCommandManagers() ){
-                    
-                                    manager.setConnection( clientConnection );
-                                    clientConnection.addCommandManager( manager );
-                    
-                                }
-                
-                            }
-            
-                            clientConnection.addCommandManager( new ServerManager( server ) );
-            
+                        clientConnection.sendCommand( new Command( "*" , "*" , -1 , KNOCK_OK ) );
+                        
+                        Control.sleep( 3 );
+             
+                        Command lastCommand = clientConnection.getLastCommand( 10 );
+                        
+                        if ( lastCommand != null ){
+                        
+                            String incomingComputerName = lastCommand.getParameters()[ 0 ];
+      
+                            clientConnection.setConnectionDetails( incomingComputerName , SystemInformation.getComputerName() );
+                         
+                            output.disp( "Adding " + incomingComputerName + " to list" );
+                        
                             server.addConnection( clientConnection );
-                    
+                        
                         }
                         else {
-                    
-                            Output.print( "Client sent wrong response" );
-                    
+                            
+                            output.disp( "Error: Client did not respond to ID request" );
+                            
+                            cancel( clientConnection );
+                            
                         }
-                
-                        break;
+                    
+                    }
+                    catch( IOException e ){
+                    
+                        output.disp( "Error: Could not send knock ok response" , e );
+                    
+                        cancel( clientConnection );
                         
                     }
-                    else {
-                
-                        Output.print( "Client did not send response" );
-                
-                    }
-  
+                    
                 }
-                catch( IOException e ){
-                
-                    Output.print( "Error: Could not send knock knock command" , e );
-                
+                else {
+                    
+                    output.disp( "Error: Client sent wrong knock response" );
+                    
+                    cancel( clientConnection );
+                    
                 }
-            
+           
             }
-            
+            else {
+                
+                output.disp( "Error: Client did not send knock-knock" );
+                
+                cancel( clientConnection );
+                
+            }
+ 
         }
         catch( IOException expection ){
             
-            Output.print( "Socket error" , expection );
+            output.disp( "Error: Socket error" , expection );
             
         }
 

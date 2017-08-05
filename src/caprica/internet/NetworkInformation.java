@@ -3,102 +3,69 @@ package caprica.internet;
 import caprica.system.Control;
 import caprica.system.SystemInformation;
 import caprica.datatypes.Config;
+import caprica.system.Output;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
-import java.net.Socket;
 import java.net.URL;
-import java.net.URLConnection;
-import java.util.Collections;
+import java.net.UnknownHostException;
 import java.util.Enumeration;
-import java.util.List;
 
 public class NetworkInformation {
     
-    /**
-     * Determines weather or not the system has an external internet connection based on ping
-     * @return true if the system has an external connection
-     */
-    public static boolean hasInternet(){
-        
-        if ( SystemInformation.getOS().equals( "Linux" ) ){
-        
-            try {                                                                                                                                                                                                                                 
-        
-                URL url = new URL( "http://www.google.com" );  
-                
-                URLConnection connection = url.openConnection();                                                                                                                                                                                  
-        
-                connection.connect(); 
- 
-                return true;     
-        
-            }
-            catch( Exception e ){ //Will only throw error if there is not internet
-                
-                return false;
-                
-            }
-            
-        }
-        
-        return false;
-        
-    }
-   
     public static String externalIP(){
       
-        if ( hasInternet() ){
+        try {
         
-            String externalResult = Control.exec( "wget http://ipinfo.io/ip -qO -" );
+            URL whatismyip = new URL( "http://checkip.amazonaws.com" );
+            BufferedReader in = null;
         
-            if ( externalResult.length() > 1 ){
-        
-                return externalResult.replace( "\n" , "" );
+            try {
             
+                in = new BufferedReader( new InputStreamReader( whatismyip.openStream() ) );
+            
+                String ip = in.readLine();
+            
+                return ip;
+            
+            } 
+            finally {
+           
+                if ( in != null ) {
+               
+                    try {
+                    
+                        in.close();
+                
+                    } 
+                    catch ( IOException e ) {}
+            
+                }
+        
             }
         
         }
-
-        return "Unknown";
+        catch( IOException exception ){
+            
+            //Output.print( "Error: Could not get external ip" , exception );
+            
+            return null;
+            
+        }
         
     }
     
     public static String internalIP(){
         
-            try {
-            
-                Enumeration< NetworkInterface > enumerator = NetworkInterface.getNetworkInterfaces();
-            
-                while ( enumerator.hasMoreElements() ){
-                
-                    NetworkInterface network = enumerator.nextElement();
-                
-                    if ( network.isUp() ){
-                    
-                        Enumeration< InetAddress > addresses = network.getInetAddresses();
-                    
-                        while ( addresses.hasMoreElements() ){
-                        
-                            String address = addresses.nextElement().getHostAddress();
-                        
-                            if ( !address.contains( "eth0" ) && !address.contains( "wlan" ) ){
-                            
-                                return address;
-                            
-                            }
-                        
-                        }
-                    
-                    }
-                
-                }
+        try {
         
-                return InetAddress.getLocalHost().getHostAddress();
+            InetAddress IP = InetAddress.getLocalHost();
+            return IP.getHostAddress();
         
-            }
-            catch( Exception e ){}
-        
-        
+        }
+        catch( UnknownHostException e ){}
         
         return "Unknown";
             

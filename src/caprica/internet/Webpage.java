@@ -7,10 +7,14 @@ import java.io.BufferedInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.Authenticator;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
+import java.net.PasswordAuthentication;
 import java.net.URL;
 import java.net.URLConnection;
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
 
 public class Webpage {
     
@@ -31,7 +35,7 @@ public class Webpage {
     public static void downloadFile( String urlAddress , String fileAddress ) throws IOException {
         
         URL page = new URL( urlAddress );
-        
+
         HttpURLConnection connection = ( HttpURLConnection ) page.openConnection();
 
         connection.addRequestProperty("User-Agent", "Mozilla/4.76"); 

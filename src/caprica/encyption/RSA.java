@@ -16,6 +16,34 @@ public class RSA {
     int phi;
     int e, d; //Our keys
     
+    public String decrypt( String message ){
+        
+        String decrypted = "";
+        
+        for ( char bit : message.toCharArray() ){
+            
+            decrypted += this.decypt( ( int ) bit );
+            
+        }
+        
+        return decrypted;
+        
+    }
+    
+    public String encrypt( String message ){
+        
+        String encrypted = "";
+        
+        for ( char bit : message.toCharArray() ){
+            
+            encrypted += this.encypt( ( int ) bit );
+            
+        }
+        
+        return encrypted;
+        
+    }
+    
     public RSA(){ //Random selection of prime numbers
         
         Output.print( "Generating RSA key from scratch" );

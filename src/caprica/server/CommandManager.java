@@ -4,6 +4,8 @@ public interface CommandManager {
     
     public void Manage( Command command );
     
-    public void setConnection( Connection connection );
+    public void setBridge( Bridge bridge );
+    
+    public String getName();
     
 }

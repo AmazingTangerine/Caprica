@@ -5,19 +5,28 @@ import java.lang.reflect.Constructor;
 
 public class Subroutine {
 
-    ThreadRoutine routine;
+    private ThreadRoutine threadRoutine = null;
+    private ConstructedRoutine constructedRoutine = null;
     
-    boolean alive = false;
+    private boolean alive = false;
     boolean runOnce = false;
     
-    Num delayTime = null;
+    private Num delayTime = null;
     
     SubroutineThread thread;
     
+    private static int threadCount = 0;
+    
     public Subroutine( ThreadRoutine routine ){
         
-        this.routine = routine;
+        this.threadRoutine = routine;
          
+    }
+    
+    public Subroutine( ConstructedRoutine routine ){
+        
+        this.constructedRoutine = routine;
+        
     }
     
     public void setDelayTime( Num input ){
@@ -27,6 +36,10 @@ public class Subroutine {
     }
     
     public void start(){
+        
+        threadCount++;
+        
+        new Output( "Subroutine" ).disp( "Thread count: " + threadCount );
         
         alive = true;
         
@@ -85,7 +98,16 @@ public class Subroutine {
             
             while ( active ){
             
-                routine.run();
+                if ( threadRoutine == null ){
+                    
+                    constructedRoutine.run();
+                    
+                }
+                else {
+                    
+                    threadRoutine.run();
+                    
+                }
               
                 if ( runOnce ){
                     

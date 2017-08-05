@@ -1,5 +1,6 @@
 package caprica.datatypes;
 
+import caprica.system.Output;
 import java.awt.Dimension;
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
@@ -16,7 +17,7 @@ public class Vector {
     public Vector( Object... inputs ){
      
         for ( Object input : inputs ){
-
+       
             data.add( new Num( input ) );
             
         }

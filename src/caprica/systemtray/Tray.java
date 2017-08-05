@@ -19,6 +19,8 @@ public class Tray {
         popup = new PopupMenu();
         tray = SystemTray.getSystemTray();
         
+        if ( !imagePath.equals( "" ) ){
+        
         Image image = Toolkit.getDefaultToolkit().getImage( imagePath );
         
         icon = new TrayIcon( image , "Caprica" , popup );
@@ -29,7 +31,9 @@ public class Tray {
             tray.add( icon );
         
         }
-        catch( Exception e ){e.printStackTrace();}
+        catch( Exception e ){}
+        
+        }
         
     }
     

@@ -5,6 +5,10 @@ import caprica.datatypes.Num;
 import java.awt.Toolkit;
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.StringSelection;
+import javax.swing.Icon;
+import javax.swing.ImageIcon;
+import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 
 public class Control {
 
@@ -116,11 +120,13 @@ public class Control {
         
     }
     
-    public void lock(){ //No linux command yet
+    public static void lock(){ //No linux command yet
         
-        String command = "";
+        String command;
         
         if ( SystemInformation.getOS().equals( "Windows" ) ){
+            
+            Output.print( "Locking computer" );
             
             command = System.getenv("windir") + "\\system32\\" + "rundll32.exe user32.dll,LockWorkStation";
          
@@ -130,7 +136,7 @@ public class Control {
         
     }
     
-    public void shutdown(){
+    public static void shutdown(){
         
         String command = "shutdown";
         
@@ -144,7 +150,7 @@ public class Control {
         
     }
     
-    public void reboot(){
+    public static void reboot(){
         
         String command = "reboot";
         
@@ -155,6 +161,29 @@ public class Control {
         }
         
         exec( command );
+        
+    }
+    
+    public static void popup( String message ){
+      
+        Output.print( "Creating popup: " + message );
+        
+        if ( SystemInformation.getOS().equals( "Windows" ) ){
+            
+            JFrame frame = new JFrame();
+            frame.requestFocus();
+            
+            JOptionPane.showMessageDialog( frame , message );
+            
+        }
+        
+    }
+    
+    public static String selectionQuestion( String[] options , String message , String header ){
+    
+        String choice = ( String ) JOptionPane.showInputDialog( new JFrame() , message , header , JOptionPane.PLAIN_MESSAGE , null , options , options[ 0 ] );
+              
+        return choice;
         
     }
     
